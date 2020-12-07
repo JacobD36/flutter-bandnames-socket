@@ -6,31 +6,41 @@ enum ServerStatus {
   Offline,
   Connecting
 }
-
 class SocketService with ChangeNotifier {
   ServerStatus _serverStatus = ServerStatus.Connecting;
+  ServerStatus get serverStatus => this._serverStatus;
+  IO.Socket _socket;
+  IO.Socket get socket => this._socket;
+  Function get emit => this._socket.emit;
 
   SocketService() {
     this._initConfig();
   }
 
   void _initConfig() {
-    IO.Socket socket = IO.io('http://10.0.2.2:3000', {
+    this._socket = IO.io('http://10.0.2.2:3000', {
       'transports': ['websocket'],
       'autoConnect': true
     });
 
-    /*IO.Socket socket = IO.io('http://192.168.1.17:3000', 
-      IO.OptionBuilder()
-        .setTransports(['websocket']) // for Flutter or Dart VM
-        .enableAutoConnect()  // disable auto-connection
-        .build()
-    );*/
-
-    socket.onConnect((_) {
-     print('connect');
+    this._socket.on('connect', (_) {
+      this._serverStatus = ServerStatus.Online;
+      notifyListeners();
+      print('Conectado');
     });
 
-    socket.onDisconnect((_) => print('disconnect'));
+    this._socket.on('disconnect', (_) {
+      this._serverStatus = ServerStatus.Offline;
+      notifyListeners();
+      print('Desconectado');
+    });
+
+    this._socket.on('nuevo-mensaje', (payload) {
+      print('Nuevo-Mensaje');
+      print('Nombres: ${payload['nombre']}');
+      print('Apellidos: ${payload['apellidos']}');
+      print('Mensaje: ${payload['mensaje']}');
+      print(payload.containsKey('mensaje2') ? 'Mensaje2: ${payload['mensaje2']}' : 'Mensaje2: No existe');
+    });
   }
 }

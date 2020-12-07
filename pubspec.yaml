@@ -31,6 +31,7 @@ dependencies:
   socket_io_client: ^0.9.12
   provider: ^4.3.2+2
   flutter_simple_dependency_injection: ^1.0.4
+  pie_chart: ^4.0.1
 
 dev_dependencies:
   flutter_test:
